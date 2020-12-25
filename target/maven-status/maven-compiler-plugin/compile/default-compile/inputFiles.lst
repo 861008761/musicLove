@@ -1,4 +1,14 @@
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/model/SysRole.java
 /Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/controller/UploadController.java
 /Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/util/RestResult.java
-/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/controller/GlobalExceptionHandler.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/service/impl/UserInfoServiceImpl.java
 /Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/Application.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/model/SysPermission.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/service/UserInfoService.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/model/UserInfo.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/controller/UserInfoController.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/controller/GlobalExceptionHandler.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/config/ShiroConfig.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/config/MyShiroRealm.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/controller/HomeController.java
+/Users/mylovin/Downloads/musicLove/src/main/java/com/mylovin/music/dao/UserInfoDao.java

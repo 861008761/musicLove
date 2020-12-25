@@ -4,20 +4,21 @@ import com.alibaba.fastjson.JSON;
 import com.mylovin.music.util.RestResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@RestController
+@Controller
+@RequestMapping("/music")
 public class UploadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
@@ -26,26 +27,31 @@ public class UploadController {
     private static String UPLOADED_FOLDER = "F://temp//";
 
     static {
+        String os = System.getProperty("os.name");
+        if (!os.toLowerCase().startsWith("win")) {
+            UPLOADED_FOLDER = "/Users/mylovin/Downloads/music/";
+        }
         File uploadDir = new File(UPLOADED_FOLDER);
         if (!uploadDir.exists()) {
             uploadDir.mkdir();
         }
     }
 
-    @GetMapping("/")
+    @GetMapping("/upload")
     public String index() {
         return "upload";
     }
 
     /**
      * 上传文件
+     *
      * @param file
      * @param redirectAttributes
      * @return
      */
-    @PostMapping("/upload") // //new annotation since 4.3
+    @PostMapping("/uploadMusic") // //new annotation since 4.3
     public String singleFileUpload(@RequestParam("file") MultipartFile file,
-                                       RedirectAttributes redirectAttributes) {
+                                   RedirectAttributes redirectAttributes) {
         RestResult result = new RestResult();
 
         if (file.isEmpty()) {
@@ -72,16 +78,32 @@ public class UploadController {
     }
 
     /**
-     * 制作无人声音频伴奏
+     * 调用python文件，制作无人声音频伴奏
      */
-    @PostMapping("/generateNonVoiceAudioAccompaniment")
+    @GetMapping("/generateNonVoiceAudioAccompaniment")
     public String generateNonVoiceAudioAccompaniment(@RequestParam("file") String file) {
         RestResult result = new RestResult();
         //调用python程序进行文件处理，返回结果
+        Process proc;
+        try {
+            proc = Runtime.getRuntime().exec("python /Users/mylovin/Downloads/Run.py");
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            in.close();
+            proc.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return JSON.toJSONString(result);
     }
 
     @GetMapping("/uploadStatus")
+    @ResponseBody
     public String uploadStatus() {
         return "uploadStatus";
     }
