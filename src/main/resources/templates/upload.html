@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script language="JavaScript" type="text/javascript">
+        var webtype=".$webType";
+        var merchantUrl="";
+        var contextPath="${contextPath}";
+
+    </script>
+</head>
 <body>
 
 <h1>Spring Boot file upload example</h1>
 
-<form method="POST" action="/music/uploadMusic" enctype="multipart/form-data">
+<form method="POST" action="uploadMusic" enctype="multipart/form-data">
     <input type="file" name="file" /><br/><br/>
     <input type="submit" value="Submit" />
 </form>
