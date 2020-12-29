@@ -2,11 +2,16 @@ package com.mylovin.music.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.mylovin.music.model.UserInfo;
+import com.mylovin.music.model.UserMusic;
+import com.mylovin.music.service.MusicService;
+import com.mylovin.music.util.DateUtil;
 import com.mylovin.music.util.RestResult;
 import com.mylovin.music.util.SystemConstant;
 import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +30,12 @@ import java.util.Date;
 @RequestMapping("/music")
 public class UploadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
+
+    @Value("${server.fileServer}")
+    private String FILE_SERVER_PREFIX;
+
+    @Autowired
+    private MusicService musicService;
 
     //Save the uploaded file to this folder
     //应该写到配置文件中
@@ -79,6 +90,12 @@ public class UploadController {
             if (null != user) {
                 fileName = user.getUid() + "_" + new Date().getTime() + ".mp3";
                 //TODO 写入数据库
+                UserMusic music = new UserMusic();
+                music.setFileName(fileName);
+                music.setTime(DateUtil.formatDate());
+                music.setStatus((byte) 0);
+                music.setUserInfo(user);
+                musicService.save(music);
             }
 
             // Get the file and save it somewhere
@@ -88,7 +105,7 @@ public class UploadController {
             Files.write(path, bytes);
 
             LOGGER.info("You successfully uploaded {}", file.getOriginalFilename());
-            result.setMsg("You successfully uploaded " + fileName);
+            result.setMsg("You successfully uploaded " + fileName + "! file path on file server is " + FILE_SERVER_PREFIX + fileName);
             result.setRetCode(0);
         } catch (IOException e) {
             e.printStackTrace();

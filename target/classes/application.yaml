@@ -1,5 +1,8 @@
 #http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-properties
 #search multipart
+server:
+  ip: 192.168.1.2
+  fileServer: http://${server.ip}:9090/video/
 spring:
   http:
     multipart:

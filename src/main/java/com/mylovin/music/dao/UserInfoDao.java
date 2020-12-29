@@ -5,9 +5,11 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
-    /**通过username查找用户信息;*/
-    public UserInfo findByUsername(String username);
+public interface UserInfoDao extends CrudRepository<UserInfo, Long> {
+    /**
+     * 通过username查找用户信息;
+     */
+    UserInfo findByUsername(String username);
 
     @Override
     Optional<UserInfo> findById(Long id);

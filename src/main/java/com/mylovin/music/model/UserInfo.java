@@ -19,6 +19,12 @@ public class UserInfo implements Serializable {
     @JoinTable(name = "SysUserRole", joinColumns = {@JoinColumn(name = "uid")}, inverseJoinColumns = {@JoinColumn(name = "roleId")})
     private List<com.mylovin.music.model.SysRole> roleList;// 一个用户具有多个角色
 
+    @OneToMany(mappedBy = "userInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //级联保存、更新、删除、刷新;延迟加载。当删除用户，会级联删除该用户的所有音乐
+    //拥有mappedBy注解的实体类为关系被维护端
+    //mappedBy="userInfo"中的userInfo是UserMusic中的userInfo属性
+    private List<UserMusic> musicList;//音乐列表
+
     public Integer getUid() {
         return uid;
     }
@@ -77,11 +83,11 @@ public class UserInfo implements Serializable {
 
     /**
      * 密码盐.
+     * 重新对盐重新进行了定义，用户名+salt，这样就更加不容易被破解
      *
      * @return
      */
     public String getCredentialsSalt() {
         return this.username + this.salt;
     }
-    //重新对盐重新进行了定义，用户名+salt，这样就更加不容易被破解
 }
