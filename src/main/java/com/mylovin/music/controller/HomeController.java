@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -43,7 +44,9 @@ public class HomeController {
      * @throws Exception
      */
     @RequestMapping("/login")
+    @ResponseBody
     public String login(HttpServletRequest request, Map<String, Object> map) throws Exception {
+        RestResult result = new RestResult();
         System.out.println("HomeController.login()");
         // 登录失败从request中获取shiro处理的异常信息。
         // shiroLoginFailure:就是shiro异常类的全类名.
@@ -64,10 +67,19 @@ public class HomeController {
                 msg = "else >> " + exception;
                 System.out.println("else -- >" + exception);
             }
+            result.setRetCode(-1);
+            result.setMsg(msg);
+            return JSON.toJSONString(result);
         }
-        map.put("msg", msg);
-        // 此方法不处理登录成功,由shiro进行处理
-        return "/login";
+        Subject subject = SecurityUtils.getSubject();
+        UserInfo user = (UserInfo) subject.getPrincipal();
+        String sessionId = (String) subject.getSession().getId();
+        Map<String, String> info = new HashMap<>();
+        info.put("username", user.getUsername());
+        info.put("sessionId", sessionId);
+        result.setMsg(info);
+        result.setRetCode(0);
+        return JSON.toJSONString(result);
     }
 
     /**

@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/music")
@@ -137,6 +139,27 @@ public class UploadController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return JSON.toJSONString(result);
+    }
+
+    /**
+     * 查询用户制作历史
+     *
+     * @return
+     */
+    @RequestMapping("/history")
+    @ResponseBody
+    public String history() {
+        RestResult result = new RestResult();
+        UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+        if (Objects.isNull(user)) {
+            result.setMsg("user not login!");
+            result.setRetCode(-1);
+            return JSON.toJSONString(result);
+        }
+        List<UserMusic> userMusicList = musicService.findByUserInfo(user);
+        result.setMsg(userMusicList);
+        result.setRetCode(0);
         return JSON.toJSONString(result);
     }
 

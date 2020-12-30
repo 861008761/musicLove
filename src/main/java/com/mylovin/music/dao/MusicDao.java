@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface MusicDao extends CrudRepository<UserMusic, Long> {
     UserMusic save(UserMusic music);
-
+    
     List<UserMusic> findByUserInfo(UserInfo userInfo);
 }

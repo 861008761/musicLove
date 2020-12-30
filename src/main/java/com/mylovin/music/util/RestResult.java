@@ -11,13 +11,13 @@ public class RestResult {
     /**
      * 返回消息
      */
-    private String msg;
+    private Object msg;
 
     public int getRetCode() {
         return retCode;
     }
 
-    public String getMsg() {
+    public Object getMsg() {
         return msg;
     }
 
@@ -25,7 +25,7 @@ public class RestResult {
         this.retCode = retCode;
     }
 
-    public void setMsg(String msg) {
+    public void setMsg(Object msg) {
         this.msg = msg;
     }
 }
