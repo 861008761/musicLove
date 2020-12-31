@@ -1,14 +1,18 @@
 package com.mylovin.music.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.mylovin.music.model.ShiroToken;
 import com.mylovin.music.model.UserInfo;
 import com.mylovin.music.service.UserInfoService;
 import com.mylovin.music.util.Md5SaltUtil;
 import com.mylovin.music.util.RestResult;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.util.SavedRequest;
+import org.apache.shiro.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,36 +52,40 @@ public class HomeController {
     public String login(HttpServletRequest request, Map<String, Object> map) throws Exception {
         RestResult result = new RestResult();
         System.out.println("HomeController.login()");
-        // 登录失败从request中获取shiro处理的异常信息。
-        // shiroLoginFailure:就是shiro异常类的全类名.
-        String exception = (String) request.getAttribute("shiroLoginFailure");
-        System.out.println("exception=" + exception);
-        String msg = "";
-        if (exception != null) {
-            if (UnknownAccountException.class.getName().equals(exception)) {
-                System.out.println("UnknownAccountException -- > 账号不存在：");
-                msg = "UnknownAccountException -- > 账号不存在：";
-            } else if (IncorrectCredentialsException.class.getName().equals(exception)) {
-                System.out.println("IncorrectCredentialsException -- > 密码不正确：");
-                msg = "IncorrectCredentialsException -- > 密码不正确：";
-            } else if ("kaptchaValidateFailed".equals(exception)) {
-                System.out.println("kaptchaValidateFailed -- > 验证码错误");
-                msg = "kaptchaValidateFailed -- > 验证码错误";
-            } else {
-                msg = "else >> " + exception;
-                System.out.println("else -- >" + exception);
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        try {
+
+            ShiroToken token = new ShiroToken(username, password);
+            token.setRememberMe(false);
+            //最终调用core.shiro.UserRealm doGetAuthenticationInfo方法 进行校验
+            SecurityUtils.getSubject().login(token);
+
+            UserInfo token2 = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+
+            LOGGER.info(token2.getUsername() + "," + token2.getPassword());
+            map.put("status", 200);
+            map.put("message", "登录成功");
+
+            /**
+             * 获取登录之前的地址
+             */
+            SavedRequest savedRequest = WebUtils.getSavedRequest(request);
+            String url = null;
+            if (null != savedRequest) {
+                url = savedRequest.getRequestUrl();
             }
-            result.setRetCode(-1);
-            result.setMsg(msg);
-            return JSON.toJSONString(result);
+            // 跳转地址
+            map.put("back_url", url);
+        } catch (DisabledAccountException e) {
+            map.put("status", 500);
+            map.put("message", "帐号已经禁用。");
+        } catch (Exception e) {
+            map.put("status", 500);
+            map.put("message", "帐号或密码错误");
         }
-        Subject subject = SecurityUtils.getSubject();
-        UserInfo user = (UserInfo) subject.getPrincipal();
-        String sessionId = (String) subject.getSession().getId();
-        Map<String, String> info = new HashMap<>();
-        info.put("username", user.getUsername());
-        info.put("sessionId", sessionId);
-        result.setMsg(info);
+        result.setMsg(map);
         result.setRetCode(0);
         return JSON.toJSONString(result);
     }

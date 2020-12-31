@@ -30,10 +30,10 @@ public class ShiroConfig {
         //<!-- authc:所有url都必须认证通过才可以访问; anon:所有url都可以匿名访问-->
         filterChainDefinitionMap.put("/userInfo/*", "authc");
         filterChainDefinitionMap.put("/userInfo", "authc");
-        filterChainDefinitionMap.put("/home/login", "authc");
+        //filterChainDefinitionMap.put("/home/login", "authc");
         filterChainDefinitionMap.put("/home/logout", "authc");
         // 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
-        shiroFilterFactoryBean.setLoginUrl("/home/login");
+        //shiroFilterFactoryBean.setLoginUrl("/home/login");
         // 登录成功后要跳转的链接
         shiroFilterFactoryBean.setSuccessUrl("/index");
 
