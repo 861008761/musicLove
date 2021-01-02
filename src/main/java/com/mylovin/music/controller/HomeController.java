@@ -10,6 +10,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
@@ -81,6 +82,13 @@ public class HomeController {
             }
             // 跳转地址
             map.put("back_url", url);
+
+            //查询sessionId
+            Subject subject = SecurityUtils.getSubject();
+            Session session = SecurityUtils.getSubject().getSession();
+            session.setTimeout(60000);//60秒
+            String sessionId = (String) session.getId();
+            map.put("sessionId", sessionId);
         } catch (DisabledAccountException e) {
             map.put("status", 500);
             map.put("message", "帐号已经禁用。");

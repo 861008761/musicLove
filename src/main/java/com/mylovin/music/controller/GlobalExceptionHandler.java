@@ -12,6 +12,7 @@ public class GlobalExceptionHandler {
     //4.3.5 supports RedirectAttributes redirectAttributes
     @ExceptionHandler(MultipartException.class)
     public String handleError1(MultipartException e, RedirectAttributes redirectAttributes) {
+        e.printStackTrace();
         redirectAttributes.addFlashAttribute("message", e.getCause().getMessage());
         return "redirect:/uploadStatus";
     }

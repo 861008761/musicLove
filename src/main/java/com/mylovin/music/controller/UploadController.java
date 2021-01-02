@@ -65,13 +65,11 @@ public class UploadController {
      * 上传文件
      *
      * @param file
-     * @param redirectAttributes
      * @return
      */
     @PostMapping("/uploadMusic") // //new annotation since 4.3
     @ResponseBody
-    public String singleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
+    public String singleFileUpload(@RequestParam("file") MultipartFile file) {
         RestResult result = new RestResult();
 
         if (file.isEmpty()) {
