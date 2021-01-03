@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/music")
@@ -124,7 +125,12 @@ public class UploadController {
         //调用python程序进行文件处理，返回结果
         Process proc;
         try {
-            proc = Runtime.getRuntime().exec("python " + SystemConstant.GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_WIN);
+            String exe = "sh";
+            String command = SystemConstant.GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_MACOS;
+            String fileName = file;
+            String processType = "2stems";
+            String[] cmdArr = new String[]{exe, command, fileName, processType};
+            proc = Runtime.getRuntime().exec(cmdArr);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
             while ((line = in.readLine()) != null) {

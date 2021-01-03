@@ -9,5 +9,5 @@ public class SystemConstant {
     /* 制作无人声音频伴奏python文件地址 */
     public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_WIN = "F://script//Run.py";
     public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_LINUX = "/opt/script/Run.py";
-    public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_MACOS = "/Users/mylovin/Downloads/Run.py";
+    public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_MACOS = "/Users/mylovin/Downloads/music/generateNonVoiceAudioAccompaniment.sh";
 }

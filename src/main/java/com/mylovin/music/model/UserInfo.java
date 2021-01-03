@@ -90,4 +90,14 @@ public class UserInfo implements Serializable {
     public String getCredentialsSalt() {
         return this.username + this.salt;
     }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "uid=" + uid +
+                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
+                ", state=" + state +
+                '}';
+    }
 }

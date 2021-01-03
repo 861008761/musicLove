@@ -6,6 +6,7 @@ import com.mylovin.music.model.UserInfo;
 import com.mylovin.music.service.UserInfoService;
 import com.mylovin.music.util.Md5SaltUtil;
 import com.mylovin.music.util.RestResult;
+import com.mylovin.music.util.ResultMessage;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -18,10 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -47,20 +45,20 @@ public class HomeController {
      * 用户登录
      *
      * @param request
-     * @param map
      * @return
      * @throws Exception
      */
-    @RequestMapping("/login")
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     @ResponseBody
-    public String login(HttpServletRequest request, Map<String, Object> map) throws Exception {
-        RestResult result = new RestResult();
+    public String login(HttpServletRequest request) throws Exception {
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+
         System.out.println("HomeController.login()");
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         try {
-
             ShiroToken token = new ShiroToken(username, password);
             token.setRememberMe(false);
             //最终调用core.shiro.UserRealm doGetAuthenticationInfo方法 进行校验
@@ -69,8 +67,8 @@ public class HomeController {
             UserInfo token2 = (UserInfo) SecurityUtils.getSubject().getPrincipal();
 
             LOGGER.info(token2.getUsername() + "," + token2.getPassword());
-            map.put("status", 200);
-            map.put("message", "登录成功");
+            message.setStatus(200);
+            msg.put("message", "登录成功");
 
             /**
              * 获取登录之前的地址
@@ -81,24 +79,26 @@ public class HomeController {
                 url = savedRequest.getRequestUrl();
             }
             // 跳转地址
-            map.put("back_url", url);
+            msg.put("back_url", url);
 
             //查询sessionId
             Subject subject = SecurityUtils.getSubject();
-            Session session = SecurityUtils.getSubject().getSession();
+            Session session = subject.getSession(true);
+
+            LOGGER.info(String.valueOf(subject));
+            LOGGER.info(String.valueOf(subject.getSession()));
+
             session.setTimeout(60000);//60秒
             String sessionId = (String) session.getId();
-            map.put("sessionId", sessionId);
+            msg.put("sessionId", sessionId);
         } catch (DisabledAccountException e) {
-            map.put("status", 500);
-            map.put("message", "帐号已经禁用。");
+            message.setStatus(500);
+            msg.put("message", "帐号已经禁用。");
         } catch (Exception e) {
-            map.put("status", 500);
-            map.put("message", "帐号或密码错误");
+            message.setStatus(500);
+            msg.put("message", "帐号或密码错误");
         }
-        result.setMsg(map);
-        result.setRetCode(0);
-        return JSON.toJSONString(result);
+        return JSON.toJSONString(message);
     }
 
     /**
@@ -107,13 +107,21 @@ public class HomeController {
      * @return
      */
     @RequestMapping("/logout")
+    @ResponseBody
     public String logout() {
-        RestResult result = new RestResult();
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+        LOGGER.info("UserInfoController.logout()");
         Subject subject = SecurityUtils.getSubject();
-        subject.logout();
-        result.setRetCode(0);
-        result.setMsg("退出");
-        return JSON.toJSONString(result);
+        try {
+            subject.logout();
+            message.setStatus(200);
+            msg.put("msg", "正常退出");
+        } catch (Exception e) {
+            message.setStatus(500);
+            msg.put("msg", "账号退出失败");
+        }
+        return JSON.toJSONString(message);
     }
 
     /**
