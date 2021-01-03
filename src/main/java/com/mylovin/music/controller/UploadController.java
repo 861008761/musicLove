@@ -142,11 +142,19 @@ public class UploadController {
             }
             in.close();
             proc.waitFor();
+            msg.put("message", "制作无人声音频伴奏完成");
+            message.setStatus(200);
             LOGGER.info("制作伴奏完成");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("制作无人声音频伴奏失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "制作无人声音频伴奏失败!");
+            msg.put("cause", e.getMessage());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("制作无人声音频伴奏失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "制作无人声音频伴奏失败!");
+            msg.put("cause", e.getMessage());
         }
         return JSON.toJSONString(message);
     }
