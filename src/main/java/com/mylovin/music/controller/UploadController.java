@@ -6,6 +6,7 @@ import com.mylovin.music.model.UserMusic;
 import com.mylovin.music.service.MusicService;
 import com.mylovin.music.util.DateUtil;
 import com.mylovin.music.util.RestResult;
+import com.mylovin.music.util.ResultMessage;
 import com.mylovin.music.util.SystemConstant;
 import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -121,10 +123,12 @@ public class UploadController {
     @GetMapping("/generateNonVoiceAudioAccompaniment")
     @ResponseBody
     public String generateNonVoiceAudioAccompaniment(@RequestParam("file") String file) {
-        RestResult result = new RestResult();
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
         //调用python程序进行文件处理，返回结果
         Process proc;
         try {
+            LOGGER.info("开始制作伴奏");
             String exe = "sh";
             String command = SystemConstant.GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_MACOS;
             String fileName = file;
@@ -138,12 +142,13 @@ public class UploadController {
             }
             in.close();
             proc.waitFor();
+            LOGGER.info("制作伴奏完成");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return JSON.toJSONString(result);
+        return JSON.toJSONString(message);
     }
 
     /**
