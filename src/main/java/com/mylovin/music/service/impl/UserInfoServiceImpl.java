@@ -6,6 +6,7 @@ import com.mylovin.music.service.UserInfoService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -27,7 +28,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public boolean validateActivatedUser(String username) {
         System.out.println("UserInfoServiceImpl.validateActivatedUser(String username)");
-        return false;
+        UserInfo userInfo = userInfoDao.validateActivatedUser(username);
+        if (Objects.isNull(userInfo)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

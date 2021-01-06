@@ -6,6 +6,10 @@ server:
   port: 8080
   servlet:
     context-path:
+#登录超时时间
+session:
+  timeout: 3600000
+
 spring:
   servlet:
     multipart:

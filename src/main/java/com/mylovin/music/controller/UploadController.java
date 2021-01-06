@@ -80,7 +80,7 @@ public class UploadController {
             LOGGER.info("file is empty!");
 
             message.setStatus(500);
-            msg.put("msg", "Please select a file to upload");
+            msg.put("message", "Please select a file to upload");
             return JSON.toJSONString(message);
         }
 
@@ -109,7 +109,7 @@ public class UploadController {
             Files.write(path, bytes);
 
             LOGGER.info("You successfully uploaded {}", file.getOriginalFilename());
-            msg.put("msg", "You successfully uploaded " + fileName + "! file path on file server is " + FILE_SERVER_PREFIX + fileName);
+            msg.put("message", "You successfully uploaded " + fileName + "! file path on file server is " + FILE_SERVER_PREFIX + fileName);
             message.setStatus(200);
         } catch (IOException e) {
             e.printStackTrace();
@@ -173,12 +173,12 @@ public class UploadController {
 
         UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
         if (Objects.isNull(user)) {
-            msg.put("msg", "user not login!");
+            msg.put("message", "user not login!");
             message.setStatus(500);
             return JSON.toJSONString(message);
         }
         List<UserMusic> userMusicList = musicService.findByUserInfo(user);
-        msg.put("msg", userMusicList);
+        msg.put("message", userMusicList);
         message.setStatus(200);
         return JSON.toJSONString(message);
     }

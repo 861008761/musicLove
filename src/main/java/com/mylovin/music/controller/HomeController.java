@@ -42,7 +42,6 @@ public class HomeController {
     @Autowired
     private UserInfoService userInfoService;
 
-
     @Autowired
     private MailService mailService;
 
@@ -54,6 +53,9 @@ public class HomeController {
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
+
+    @Value("${session.timeout}")
+    private Long sessionTimeOut;
 
     @RequestMapping({"/", "/index"})
     public String index() {
@@ -112,12 +114,12 @@ public class HomeController {
             LOGGER.info(String.valueOf(subject));
             LOGGER.info(String.valueOf(subject.getSession()));
 
-            session.setTimeout(60000);//60秒
+            session.setTimeout(sessionTimeOut);//60秒
             String sessionId = (String) session.getId();
             msg.put("sessionId", sessionId);
         } catch (DisabledAccountException e) {
             message.setStatus(500);
-            msg.put("message", "帐号已经禁用。");
+            msg.put("message", "帐号已经禁用");
         } catch (NonActivateException e) {
             message.setStatus(500);
             msg.put("message", "账号未激活");
@@ -143,10 +145,10 @@ public class HomeController {
         try {
             subject.logout();
             message.setStatus(200);
-            msg.put("msg", "正常退出");
+            msg.put("message", "正常退出");
         } catch (Exception e) {
             message.setStatus(500);
-            msg.put("msg", "账号退出失败");
+            msg.put("message", "账号退出失败");
         }
         return JSON.toJSONString(message);
     }
@@ -173,20 +175,20 @@ public class HomeController {
                 || StringUtils.isEmpty(userInfo.getPassword())
                 || StringUtils.isEmpty(userInfo.getUseremail())) {
             LOGGER.error("register info not complete!");
-            msg.put("msg", "register info not complete!");
+            msg.put("message", "register info not complete!");
             message.setStatus(500);
             return JSON.toJSONString(message);
         }
         if (!validEmail(userInfo.getUseremail())) {
             LOGGER.error("user email is not legal!");
-            msg.put("msg", "user email is not legal!");
+            msg.put("message", "user email is not legal!");
             message.setStatus(500);
             return JSON.toJSONString(message);
         }
         UserInfo user = userInfoService.findByUsername(userInfo.getUsername());
         if (null != user) {
             LOGGER.error("user already exist!");
-            msg.put("msg", "user exist!");
+            msg.put("message", "user exist!");
             message.setStatus(500);
             return JSON.toJSONString(message);
         }
@@ -212,7 +214,7 @@ public class HomeController {
         mailService.sendHtmlMail(userInfo.getUseremail(), subject, context);
 
         LOGGER.info("register successfully!");
-        msg.put("msg", "register successfully!");
+        msg.put("message", "register successfully!");
         message.setStatus(200);
         return JSON.toJSONString(message);
     }
