@@ -25,6 +25,16 @@ public class UserInfo implements Serializable {
     //mappedBy="userInfo"中的userInfo是UserMusic中的userInfo属性
     private List<UserMusic> musicList;//音乐列表
 
+    /**
+     * 用户邮箱
+     */
+    private String useremail;
+    /**
+     * 利用UUID生成一段数字，发动到用户邮箱，当用户点击链接时
+     * 在做一个校验如果用户传来的code跟我们发生的code一致，更改状态为“1”来激活用户
+     */
+    private String  code;
+
     public Integer getUid() {
         return uid;
     }
@@ -81,6 +91,30 @@ public class UserInfo implements Serializable {
         this.roleList = roleList;
     }
 
+    public void setMusicList(List<UserMusic> musicList) {
+        this.musicList = musicList;
+    }
+
+    public List<UserMusic> getMusicList() {
+        return musicList;
+    }
+
+    public String getUseremail() {
+        return useremail;
+    }
+
+    public void setUseremail(String useremail) {
+        this.useremail = useremail;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     /**
      * 密码盐.
      * 重新对盐重新进行了定义，用户名+salt，这样就更加不容易被破解
@@ -97,7 +131,12 @@ public class UserInfo implements Serializable {
                 "uid=" + uid +
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
+                ", salt='" + salt + '\'' +
                 ", state=" + state +
+                ", roleList=" + roleList +
+                ", musicList=" + musicList +
+                ", useremail='" + useremail + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 }

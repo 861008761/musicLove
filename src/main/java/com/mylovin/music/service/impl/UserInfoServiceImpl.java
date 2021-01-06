@@ -23,4 +23,20 @@ public class UserInfoServiceImpl implements UserInfoService {
         System.out.println("UserInfoServiceImpl.save(UserInfo userInfo)");
         return userInfoDao.save(userInfo);
     }
+
+    @Override
+    public boolean validateActivatedUser(String username) {
+        System.out.println("UserInfoServiceImpl.validateActivatedUser(String username)");
+        return false;
+    }
+
+    @Override
+    public UserInfo checkCode(String code) {
+        return userInfoDao.findByCode(code);
+    }
+
+    @Override
+    public void updateUserStatus(UserInfo user) {
+        userInfoDao.updateState(user.getState(), user.getUsername());
+    }
 }

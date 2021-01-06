@@ -3,6 +3,9 @@
 server:
   ip: 192.168.1.2
   fileServer: http://${server.ip}:9090/video/
+  port: 8080
+  servlet:
+    context-path:
 spring:
   servlet:
     multipart:
@@ -28,6 +31,31 @@ spring:
   thymeleaf:
     cache: false
     mode: HTML
+
+  ##邮箱服务器地址
+  ##QQ smtp.qq.com
+  ##sina smtp.sina.cn
+  ##aliyun smtp.aliyun.com
+  ##163 smtp.163.com
+  ##126邮箱SMTP服务器地址:smtp.126.com,端口号:465或者994
+  ##163邮箱SMTP服务器地址:smtp.163.com,端口号:465或者994
+  ##yeah邮箱SMTP服务器地址:smtp.yeah.net,端口号:465或者994
+  mail:
+    host: smtp.qq.com
+    ##邮箱用户名
+    username: 1920727070@qq.com
+    ##邮箱密码（注意：qq邮箱应该使用独立密码，去qq邮箱设置里面获取）
+    password: nwxnvxdptcqbcdgd
+    ##编码格式
+    default-encoding: UTF-8
+    ##发送邮件地址
+    from: 1920727070@qq.com
+    properties.mail.smtp.starttls.enable: true
+    properties.mail.smtp.starttls.required: true
+    properties.mail.smtp.ssl.enable: true
+mail:
+  fromMail:
+    addr: 1920727070@qq.com
 #spring.http.multipart.enabled=true #\u9ED8\u8BA4\u652F\u6301\u6587\u4EF6\u4E0A\u4F20.
 #spring.http.multipart.file-size-threshold=0 #\u652F\u6301\u6587\u4EF6\u5199\u5165\u78C1\u76D8.
 #spring.http.multipart.location= # \u4E0A\u4F20\u6587\u4EF6\u7684\u4E34\u65F6\u76EE\u5F55

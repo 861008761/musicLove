@@ -73,14 +73,15 @@ public class UploadController {
     @PostMapping("/uploadMusic") // //new annotation since 4.3
     @ResponseBody
     public String singleFileUpload(@RequestParam("file") MultipartFile file) {
-        RestResult result = new RestResult();
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
 
         if (file.isEmpty()) {
             LOGGER.info("file is empty!");
 
-            result.setRetCode(-1);
-            result.setMsg("Please select a file to upload");
-            return JSON.toJSONString(result);
+            message.setStatus(500);
+            msg.put("msg", "Please select a file to upload");
+            return JSON.toJSONString(message);
         }
 
         try {
@@ -108,13 +109,13 @@ public class UploadController {
             Files.write(path, bytes);
 
             LOGGER.info("You successfully uploaded {}", file.getOriginalFilename());
-            result.setMsg("You successfully uploaded " + fileName + "! file path on file server is " + FILE_SERVER_PREFIX + fileName);
-            result.setRetCode(0);
+            msg.put("msg", "You successfully uploaded " + fileName + "! file path on file server is " + FILE_SERVER_PREFIX + fileName);
+            message.setStatus(200);
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.error("upload failed! errMsg: [{}]", e.getMessage());
         }
-        return JSON.toJSONString(result);
+        return JSON.toJSONString(message);
     }
 
     /**
@@ -167,17 +168,19 @@ public class UploadController {
     @RequestMapping("/history")
     @ResponseBody
     public String history() {
-        RestResult result = new RestResult();
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+
         UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
         if (Objects.isNull(user)) {
-            result.setMsg("user not login!");
-            result.setRetCode(-1);
-            return JSON.toJSONString(result);
+            msg.put("msg", "user not login!");
+            message.setStatus(500);
+            return JSON.toJSONString(message);
         }
         List<UserMusic> userMusicList = musicService.findByUserInfo(user);
-        result.setMsg(userMusicList);
-        result.setRetCode(0);
-        return JSON.toJSONString(result);
+        msg.put("msg", userMusicList);
+        message.setStatus(200);
+        return JSON.toJSONString(message);
     }
 
     @GetMapping("/uploadStatus")
