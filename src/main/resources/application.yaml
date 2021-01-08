@@ -1,7 +1,7 @@
 #http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-properties
 #search multipart
 server:
-  ip: 192.168.1.2
+  ip: 192.168.1.3
   fileServer: http://${server.ip}:9090/video/
   port: 8080
   servlet:

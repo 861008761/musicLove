@@ -144,6 +144,8 @@ public class UploadController {
             in.close();
             proc.waitFor();
             msg.put("message", "制作无人声音频伴奏完成");
+            msg.put("accompaniment_address", FILE_SERVER_PREFIX + "output/" + fileName.substring(0, fileName.indexOf(".")) + "/accompaniment.wav");
+            msg.put("vocals_address", FILE_SERVER_PREFIX + "output/" + fileName.substring(0, fileName.indexOf(".")) + "/vocals.wav");
             message.setStatus(200);
             LOGGER.info("制作伴奏完成");
         } catch (IOException e) {

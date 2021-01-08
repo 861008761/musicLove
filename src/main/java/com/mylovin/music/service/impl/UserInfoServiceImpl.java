@@ -20,6 +20,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    public UserInfo findByUseremail(String useremail) {
+        return userInfoDao.findByUseremail(useremail);
+    }
+
+    @Override
     public UserInfo save(UserInfo userInfo) {
         System.out.println("UserInfoServiceImpl.save(UserInfo userInfo)");
         return userInfoDao.save(userInfo);
@@ -43,5 +48,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public void updateUserStatus(UserInfo user) {
         userInfoDao.updateState(user.getState(), user.getUsername());
+    }
+
+    @Override
+    public void updatePassword(String password, String username) {
+        this.userInfoDao.updatePassword(password, username);
     }
 }

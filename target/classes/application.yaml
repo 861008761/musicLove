@@ -1,12 +1,12 @@
 #http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#common-application-properties
 #search multipart
 server:
-  ip: 192.168.1.2
+  ip: 192.168.1.3
   fileServer: http://${server.ip}:9090/video/
   port: 8080
   servlet:
     context-path:
-#登录超时时间
+#登录超时时间 默认一小时
 session:
   timeout: 3600000
 

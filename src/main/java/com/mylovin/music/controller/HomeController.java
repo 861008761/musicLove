@@ -10,11 +10,14 @@ import com.mylovin.music.util.RestResult;
 import com.mylovin.music.util.ResultMessage;
 import com.mylovin.music.util.UUIDUtils;
 import com.mylovin.music.util.exception.NonActivateException;
+import com.mylovin.music.util.threadPool.ThreadPoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresUser;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.SavedRequest;
@@ -29,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -82,7 +87,7 @@ public class HomeController {
         try {
             boolean activated = userInfoService.validateActivatedUser(username);
             if (!activated) {
-                throw new NonActivateException("账号未激活");
+                throw new NonActivateException("账号未激活或账号不存在");
             }
 
             ShiroToken token = new ShiroToken(username, password);
@@ -185,6 +190,12 @@ public class HomeController {
             message.setStatus(500);
             return JSON.toJSONString(message);
         }
+        if (!Objects.isNull(this.userInfoService.findByUseremail(userInfo.getUseremail()))) {
+            LOGGER.error("user email is registered!");
+            msg.put("message", "user email is registered!");
+            message.setStatus(500);
+            return JSON.toJSONString(message);
+        }
         UserInfo user = userInfoService.findByUsername(userInfo.getUsername());
         if (null != user) {
             LOGGER.error("user already exist!");
@@ -193,7 +204,7 @@ public class HomeController {
             return JSON.toJSONString(message);
         }
         //1、生成用户基本信息
-        userInfo.setSalt(userInfo.getUsername() + Md5SaltUtil.generateSalt());
+        userInfo.setSalt(Md5SaltUtil.generateSalt());
         userInfo.setPassword(Md5SaltUtil.encoderPassword(userInfo.getPassword(), userInfo.getSalt()));
         userInfo.setState((byte) 0);
 
@@ -211,7 +222,8 @@ public class HomeController {
         //上面的激活码发送到用户注册邮箱
         String context = "<a href=\"http://" + ip + ":" + port + (StringUtils.isEmpty(contextPath) ? "" : "/" + contextPath) + "/home/checkCode?code=" + code + "\">激活请点击:" + code + "</a>";
         //发送激活邮件
-        mailService.sendHtmlMail(userInfo.getUseremail(), subject, context);
+        Runnable runnable = () -> mailService.sendHtmlMail(userInfo.getUseremail(), subject, context);
+        ThreadPoolUtil.execute(runnable);
 
         LOGGER.info("register successfully!");
         msg.put("message", "register successfully!");
@@ -254,15 +266,101 @@ public class HomeController {
     }
 
     /**
-     * 用户修改信息
+     * 用户修改信息，不包括密码
      * 最好是前端明文传递
      *
      * @return
      */
+    @RequestMapping("/modifyProfile")
+    @ResponseBody
     public String modifyProfile(@RequestParam("user") UserInfo userInfo) {
         ResultMessage message = new ResultMessage();
         Map<String, Object> msg = message.getMsg();
 
+        return JSON.toJSONString(message);
+    }
+
+    /**
+     * 忘记密码的时候，填写邮箱，然后自动生成一个密码到邮箱中，用这个邮箱登录
+     * 如果感觉难记，可以使用resetPassword进行修改密码
+     *
+     * @param useremail
+     * @return
+     */
+    @RequestMapping("/forgetPassword")
+    @ResponseBody
+    public String forgetPassowrd(String useremail) {
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+
+        boolean flag = this.validEmail(useremail);
+        if (!flag) {
+            message.setStatus(500);
+            msg.put("message", "email not legal!");
+            return JSON.toJSONString(message);
+        }
+
+        //1.根据邮箱查找账号
+        UserInfo userInfo = this.userInfoService.findByUseremail(useremail);
+
+        //2.判断账号是否存在，如果不存在，则直接报错
+        if (Objects.isNull(userInfo)) {
+            message.setStatus(500);
+            msg.put("message", "email has not registered! please check again!");
+            return JSON.toJSONString(message);
+        }
+
+        //3.如果存在，生成新的默认密码并发送到用户邮箱
+        String password = UUID.randomUUID().toString().replace("-", "");
+        userInfo.setPassword(Md5SaltUtil.encoderPassword(password, userInfo.getSalt()));
+        this.userInfoService.updatePassword(userInfo.getPassword(), userInfo.getUsername());
+
+        //邮件主题
+        String subject = "来自您的制作音乐伴奏网站的重置密码邮件";
+        //上面的密码
+        String context = "新的默认登录密码是: " + password;
+        //发送激活邮件
+        Runnable runnable = () -> mailService.sendHtmlMail(userInfo.getUseremail(), subject, context);
+        ThreadPoolUtil.execute(runnable);
+
+        LOGGER.info("forget password and send default password to user");
+        message.setStatus(200);
+        msg.put("message", "send default to user successfully!");
+        return JSON.toJSONString(message);
+    }
+
+    /**
+     * 要求登录的用户才可以重置密码
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    @RequestMapping("/resetPassword")
+    @RequiresUser
+    @ResponseBody
+    public String resetPassword(String username, String password) {
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+
+        if (StringUtils.isEmpty(password)) {
+            LOGGER.error("password empty!");
+            message.setStatus(500);
+            msg.put("message", "password empty!");
+        }
+
+        try {
+            UserInfo userInfo = userInfoService.findByUsername(username);
+            userInfo.setPassword(Md5SaltUtil.encoderPassword(userInfo.getPassword(), userInfo.getSalt()));
+            this.userInfoService.updatePassword(userInfo.getPassword(), userInfo.getUsername());
+            LOGGER.info("reset password successfully!");
+            msg.put("message", "reset password successfully!");
+            message.setStatus(200);
+        } catch (Exception e) {
+            LOGGER.error("reset password failed! msg: {}", e.getMessage());
+            msg.put("message", "reset password failed! msg: " + e.getMessage());
+            message.setStatus(500);
+        }
         return JSON.toJSONString(message);
     }
 

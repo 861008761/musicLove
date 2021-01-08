@@ -32,6 +32,6 @@ public class Md5SaltUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(encoderPassword("123456", "yc616474e09ed55b36543e46328ebbe709"));
+        System.out.println(encoderPassword("123456", "yy_123456b482a82286131cdb1f2a58484c40f32e"));
     }
 }

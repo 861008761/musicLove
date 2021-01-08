@@ -8,6 +8,8 @@ public interface UserInfoService {
      */
     UserInfo findByUsername(String username);
 
+    UserInfo findByUseremail(String useremail);
+
     UserInfo save(UserInfo userInfo);
 
     boolean validateActivatedUser(String username);
@@ -24,4 +26,6 @@ public interface UserInfoService {
      * @param user
      */
     void updateUserStatus(UserInfo user);
+
+    void updatePassword(String password, String username);
 }
