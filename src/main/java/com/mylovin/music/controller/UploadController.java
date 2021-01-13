@@ -163,6 +163,48 @@ public class UploadController {
     }
 
     /**
+     * 调用python文件，调节音量
+     */
+    @GetMapping("/volumeAdjustment")
+    @ResponseBody
+    public String volumeAdjustment(@RequestParam("file") String file, @RequestParam("upOrDown") String upOrDown, @RequestParam("size") String size) {
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+        //调用python程序进行文件处理，返回结果
+        Process proc;
+        try {
+            LOGGER.info("开始调节音量");
+            String exe = "sh";
+            String command = SystemConstant.VOLUME_ADJUSTMENT_MACOS;
+            String fileName = UPLOADED_FOLDER + file;
+            String[] cmdArr = new String[]{exe, command, fileName, upOrDown, size};
+            proc = Runtime.getRuntime().exec(cmdArr);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            in.close();
+            proc.waitFor();
+            msg.put("message", "调节音量完成");
+            msg.put("file", FILE_SERVER_PREFIX + file.substring(0, file.indexOf(".")) + "_" + (upOrDown.equals("1") ? "up" : "low") + size + ".mp3");
+            message.setStatus(200);
+            LOGGER.info("调节音量完成");
+        } catch (IOException e) {
+            LOGGER.error("调节音量失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "调节音量失败!");
+            msg.put("cause", e.getMessage());
+        } catch (InterruptedException e) {
+            LOGGER.error("调节音量失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "调节音量失败!");
+            msg.put("cause", e.getMessage());
+        }
+        return JSON.toJSONString(message);
+    }
+
+    /**
      * 查询用户制作历史
      *
      * @return
