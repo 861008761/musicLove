@@ -126,6 +126,15 @@ public class UploadController {
     public String generateNonVoiceAudioAccompaniment(@RequestParam("file") String file) {
         ResultMessage message = new ResultMessage();
         Map<String, Object> msg = message.getMsg();
+
+        UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+        if (Objects.isNull(user)) {
+            LOGGER.error("user not login!");
+            message.setStatus(500);
+            msg.put("message", "user not login!");
+            return JSON.toJSONString(message);
+        }
+
         //调用python程序进行文件处理，返回结果
         Process proc;
         try {
@@ -170,6 +179,15 @@ public class UploadController {
     public String volumeAdjustment(@RequestParam("file") String file, @RequestParam("upOrDown") String upOrDown, @RequestParam("size") String size) {
         ResultMessage message = new ResultMessage();
         Map<String, Object> msg = message.getMsg();
+
+        UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+        if (Objects.isNull(user)) {
+            LOGGER.error("user not login!");
+            message.setStatus(500);
+            msg.put("message", "user not login!");
+            return JSON.toJSONString(message);
+        }
+
         //调用python程序进行文件处理，返回结果
         Process proc;
         try {
@@ -199,6 +217,58 @@ public class UploadController {
             LOGGER.error("调节音量失败！msg:", e.getMessage(), e);
             message.setStatus(500);
             msg.put("message", "调节音量失败!");
+            msg.put("cause", e.getMessage());
+        }
+        return JSON.toJSONString(message);
+    }
+
+    /**
+     * 变调
+     * @return
+     */
+    @GetMapping("/tuneAdjustment")
+    @ResponseBody
+    public String tuneAdjustment(@RequestParam("file") String file, @RequestParam("upOrDown") String upOrDown, @RequestParam("size") String size) {
+        ResultMessage message = new ResultMessage();
+        Map<String, Object> msg = message.getMsg();
+
+        UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+        if (Objects.isNull(user)) {
+            LOGGER.error("user not login!");
+            message.setStatus(500);
+            msg.put("message", "user not login!");
+            return JSON.toJSONString(message);
+        }
+
+        //调用python程序进行文件处理，返回结果
+        Process proc;
+        try {
+            LOGGER.info("开始变调");
+            String exe = "sh";
+            String command = SystemConstant.TUNE_ADJUSTMENT_MACOS;
+            String fileName = UPLOADED_FOLDER + file;
+            String[] cmdArr = new String[]{exe, command, fileName, upOrDown, size};
+            proc = Runtime.getRuntime().exec(cmdArr);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            in.close();
+            proc.waitFor();
+            msg.put("message", "变调完成");
+            msg.put("file", FILE_SERVER_PREFIX + file.substring(0, file.indexOf(".")) + "_" + (upOrDown.equals("1") ? "rise" : "down") + size + ".mp3");
+            message.setStatus(200);
+            LOGGER.info("变调完成");
+        } catch (IOException e) {
+            LOGGER.error("变调失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "变调失败!");
+            msg.put("cause", e.getMessage());
+        } catch (InterruptedException e) {
+            LOGGER.error("变调失败！msg:", e.getMessage(), e);
+            message.setStatus(500);
+            msg.put("message", "变调失败!");
             msg.put("cause", e.getMessage());
         }
         return JSON.toJSONString(message);

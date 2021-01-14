@@ -11,4 +11,5 @@ public class SystemConstant {
     public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_LINUX = "/opt/script/Run.py";
     public static final String GENERATE_NONVOICE_AUDIO_ACCOMPANIMENT_MACOS = "/Users/mylovin/Downloads/music/generateNonVoiceAudioAccompaniment.sh";
     public static final String VOLUME_ADJUSTMENT_MACOS = "/Users/mylovin/Downloads/music/volumeAdjustment.sh";
+    public static final String TUNE_ADJUSTMENT_MACOS = "/Users/mylovin/Downloads/music/tuneAdjustment.sh";
 }
